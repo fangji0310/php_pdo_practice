@@ -1,0 +1,27 @@
+version: '3'
+services:
+  php:
+    build: php
+    container_name: 'php'
+    volumes:
+      - "./../src/:/usr/src/myapp"
+    links:
+      - mysql:mysql
+    networks:
+      - db
+    tty: true
+    command: /bin/sh
+  mysql:
+    build:  db
+    container_name: 'mysql'
+    volumes:
+      - "./db/scripts/:/docker-entrypoint-initdb.d/"
+    restart: always
+    expose:
+      - "3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: xxxxxx
+    networks:
+      - db
+networks:
+  db:
