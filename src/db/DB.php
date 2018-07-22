@@ -17,6 +17,9 @@ class DB {
     public function fetch_generator($sql, array $bind) {
         $pdo_statement = $this->pdo_connection->prepare($sql);
         $pdo_statement->execute($bind);
+        if ($pdo_statement->rowCount() == 0) {
+            return [];
+        }
         while($record = $pdo_statement->fetch(PDO::FETCH_ASSOC)) {
             $row = array_change_key_case($record, CASE_LOWER);
             yield $row;
@@ -32,8 +35,19 @@ class DB {
     public function fetch_all($sql, array $bind) {
         $pdo_statement = $this->pdo_connection->prepare($sql);
         $pdo_statement->execute($bind);
+        if ($pdo_statement->rowCount() == 0) {
+            return [];
+        }
         $result = $pdo_statement->fetchAll(PDO::FETCH_ASSOC);
         return array_change_key_case($result);
+    }
+
+    public function count($sql, array $bind) {
+        $result = $this->fetch_all($sql, $bind);
+        if (empty($result)) {
+            return -1;
+        }
+        return intval($result[0]['cnt']);
     }
 
     /**
