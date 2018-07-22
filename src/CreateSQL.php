@@ -1,4 +1,5 @@
 <?php
+require_once dirname(__FILE__) . '/db/DB.php';
 
 /**
  * Class CreateSQL
@@ -45,7 +46,7 @@ class CreateSQL {
      * create insert statements from actual values
      */
     public function main() {
-        $connection = $this->get_connection();
+        $connection = new DB();
         $column_list = $this->get_column_name_list($connection, $this->database_name, $this->table_name);
         $this->dump_insert_statement($connection, $this->database_name, $this->table_name, $column_list, $this->condition);
     }
@@ -53,36 +54,34 @@ class CreateSQL {
     /**
      * dump insert statements for given table
      * you can specify where clause
-     * @param PDO $connection
+     * @param DB $connection
      * @param $database_name
      * @param $table_name
      * @param array $column_list
      * @param $condition
      */
-    private function dump_insert_statement(PDO $connection, $database_name, $table_name, array $column_list, $condition) {
+    private function dump_insert_statement(DB $connection, $database_name, $table_name, array $column_list, $condition) {
         $column_join = implode($column_list, ',');
         $sql = "select $column_join from {$database_name}.{$table_name} $condition";
-        $pdo_statement = $connection->prepare($sql);
-        $pdo_statement->execute([]);
-        while ($record = $pdo_statement->fetch(PDO::FETCH_ASSOC)) {
+        $generator = $connection->fetch_generator($sql, []);
+        foreach($generator as $record) {
             $row = array_change_key_case($record, CASE_LOWER);
-            echo $this->generate_insert_statement($connection, $database_name, $table_name, $column_list, $row);
+            echo $this->generate_insert_statement($connection, $table_name, $column_list, $row);
         }
     }
 
     /**
      * generate insert statement for given data
      *
-     * @param PDO $connection
-     * @param $database_name
+     * @param DB $connection
      * @param $table_name
      * @param $column_list
      * @param $data
      * @return string
      */
-    private function generate_insert_statement(PDO $connection, $database_name, $table_name, $column_list, $data) {
+    private function generate_insert_statement(DB $connection, $table_name, $column_list, $data) {
         $column_join = implode($column_list, ',');
-        $sql = "insert into {$database_name}.{$table_name}({$column_join})".PHP_EOL;
+        $sql = "insert into {$table_name}({$column_join})".PHP_EOL;
         $sql.= "values(";
         $values = [];
         foreach($column_list as $column_name) {
@@ -99,42 +98,18 @@ class CreateSQL {
 
     /**
      * retrieve column list of given table from information_schema
-     * @param PDO $connection
+     * @param DB $connection
      * @param $database_name
      * @param $table_name
      * @return array
      */
-    private function get_column_name_list(PDO $connection, $database_name, $table_name) {
+    private function get_column_name_list(DB $connection, $database_name, $table_name) {
         $sql = "select column_name from information_schema.columns where table_schema= :database_name and table_name = :table_name";
         $bind=['database_name'=>$database_name, 'table_name'=>$table_name];
-        $pdo_statement = $connection->prepare($sql);
-        $pdo_statement->execute($bind);
-        $column_list = [];
-        while($record = $pdo_statement->fetch(PDO::FETCH_ASSOC)) {
-            $row = array_change_key_case($record, CASE_LOWER);
-            $column_list[] = $row['column_name'];
-        }
+        $column_list = array_column($connection->fetch_all($sql, $bind), 'column_name');
         return $column_list;
     }
 
-    /**
-     * get connection
-     * @return PDO
-     */
-    private function get_connection() {
-        $database_config = require './config/config.php';
-        $dsn = sprintf("mysql:dbname=%s;host=%s;port=%s"
-            , $database_config['db_name']
-            , $database_config['host_name']
-            , $database_config['port']);
-        $connection = new PDO($dsn, $database_config['user_name'],$database_config['password']);
-        $connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        if (!$connection) {
-            echo "failed to connect database";
-            exit;
-        }
-        return $connection;
-    }
 }
 $options = getopt("",array("db:","table:","condition:","exe"));
 $database_name = isset($options['db']) ? $options['db'] : '';
