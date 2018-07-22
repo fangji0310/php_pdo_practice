@@ -46,13 +46,27 @@ class DB {
     }
 
     /**
+     * retrieve column list of given table from information_schema
+     * @param DB $connection
+     * @param $database_name
+     * @param $table_name
+     * @return array
+     */
+    public function get_column_name_list($database_name, $table_name) {
+        $sql = "select column_name from information_schema.columns where table_schema= :database_name and table_name = :table_name";
+        $bind=['database_name'=>$database_name, 'table_name'=>$table_name];
+        $column_list = array_column($this->fetch_all($sql, $bind), 'column_name');
+        return $column_list;
+    }
+
+    /**
      * get connection
      * @return PDO
      */
     private function get_connection() {
         $database_config = require dirname(__FILE__).'/../config/config.php';
         $dsn = sprintf("mysql:dbname=%s;host=%s;port=%s"
-            , $database_config['db_name']
+            , $database_config['database_name']
             , $database_config['host_name']
             , $database_config['port']);
         $connection = new PDO($dsn, $database_config['user_name'],$database_config['password']);

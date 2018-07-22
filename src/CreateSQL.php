@@ -47,7 +47,7 @@ class CreateSQL {
      */
     public function main() {
         $connection = new DB();
-        $column_list = $this->get_column_name_list($connection, $this->database_name, $this->table_name);
+        $column_list = $connection->get_column_name_list($this->database_name, $this->table_name);
         $this->dump_insert_statement($connection, $this->database_name, $this->table_name, $column_list, $this->condition);
     }
 
@@ -95,21 +95,6 @@ class CreateSQL {
         $sql .= ");".PHP_EOL;
         return $sql;
     }
-
-    /**
-     * retrieve column list of given table from information_schema
-     * @param DB $connection
-     * @param $database_name
-     * @param $table_name
-     * @return array
-     */
-    private function get_column_name_list(DB $connection, $database_name, $table_name) {
-        $sql = "select column_name from information_schema.columns where table_schema= :database_name and table_name = :table_name";
-        $bind=['database_name'=>$database_name, 'table_name'=>$table_name];
-        $column_list = array_column($connection->fetch_all($sql, $bind), 'column_name');
-        return $column_list;
-    }
-
 }
 $options = getopt("",array("db:","table:","condition:","exe"));
 $database_name = isset($options['db']) ? $options['db'] : '';

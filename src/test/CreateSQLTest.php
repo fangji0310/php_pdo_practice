@@ -5,23 +5,6 @@ require_once dirname(__FILE__) . '/../db/DB.php';
 
 class CreateSQLTest extends BaseTestCase {
     /**
-     * test code for get_column_name_list
-     * this test case uses 'sample' table of 'demo' schema.
-     */
-    public function test_get_column_name_list() {
-        $db = new DB();
-        $instance = new CreateSQL('demo','sample','');
-        $parameters = [];
-        $parameters['connection'] = $db;
-        $parameters['database_name'] = 'demo';
-        $parameters['table_name'] = 'sample';
-        $actual = $this->invoke_private_method($instance, 'get_column_name_list', $parameters);
-        $this->assertCount(4, $actual);
-        $expected = ['id', 'name', 'register_datetime','update_datetime'];
-        $this->assertArraySimilar($expected, $actual);
-    }
-
-    /**
      * test code for generate_insert_statement
      * @dataProvider provider_generate_insert_statement
      */
