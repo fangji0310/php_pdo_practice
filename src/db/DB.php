@@ -67,10 +67,18 @@ class DB {
      * @return array
      */
     public function get_column_name_list($database_name, $table_name) {
-        $sql = "select column_name from information_schema.columns where table_schema= :database_name and table_name = :table_name";
+        $sql = "select column_name, column_key from information_schema.columns where table_schema= :database_name and table_name = :table_name";
         $bind=['database_name'=>$database_name, 'table_name'=>$table_name];
-        $column_list = array_column($this->fetch_all($sql, $bind), 'column_name');
-        return $column_list;
+        $column_list = [];
+        $primary_key_list = [];
+        foreach($this->fetch_generator($sql, $bind) as $row) {
+            $column_name = $row['column_name'];
+            $column_list[] = $column_name;
+            if ($row['column_key'] === 'PRI') {
+                $primary_key_list[] = $column_name;
+            }
+        }
+        return [$column_list, $primary_key_list];
     }
 
     /**

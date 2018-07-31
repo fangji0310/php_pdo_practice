@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__FILE__) . '/../BaseTestCase.php';
-require_once dirname(__FILE__) . '/../../db/DB.php';
+require_once dirname(__FILE__) . '/../../src/db/DB.php';
 
 class DBTest extends BaseTestCase {
     /**
@@ -13,9 +13,12 @@ class DBTest extends BaseTestCase {
         $parameters['database_name'] = 'demo';
         $parameters['table_name'] = 'sample';
         $actual = $this->invoke_private_method($db, 'get_column_name_list', $parameters);
-        $this->assertCount(4, $actual);
-        $expected = ['id', 'name', 'register_datetime','update_datetime'];
-        $this->assertArraySimilar($expected, $actual);
+        $this->assertCount(5, $actual[0]);
+        $this->assertCount(1, $actual[1]);
+        $expected = ['id', 'name', 'text', 'register_datetime','update_datetime'];
+        $this->assertArraySimilar($expected, $actual[0]);
+        $expected = ['id'];
+        $this->assertArraySimilar($expected, $actual[1]);
     }
 
 }

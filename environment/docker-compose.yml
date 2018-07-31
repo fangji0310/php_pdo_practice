@@ -4,7 +4,8 @@ services:
     build: php
     container_name: 'php'
     volumes:
-      - "./../src/:/usr/src/myapp"
+      - "./../src/:/usr/src/myapp/src/"
+      - "./../test/:/usr/src/myapp/test/"
     links:
       - mysql:mysql
     networks:

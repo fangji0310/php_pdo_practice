@@ -1,6 +1,6 @@
 <?php
 require_once dirname(__FILE__) . '/BaseTestCase.php';
-require_once dirname(__FILE__) . '/../db/DB.php';
+require_once dirname(__FILE__) . '/../src/db/DB.php';
 
 class SampleTest extends BaseTestCase {
     /**
@@ -9,10 +9,10 @@ class SampleTest extends BaseTestCase {
     public function test_sample_table() {
         $db = new DB();
         $excluded_columns = ['register_datetime', 'update_datetime'];
-        $this->assertTableNotSimilar($db, 'demo', 'expected_sample', 'demo', 'sample', 'id');
-        $this->assertTableNotSimilar($db, 'demo', 'expected_sample', 'demo', 'sample', 'id', $excluded_columns);
+        $this->assertTableNotSimilar($db, 'demo', 'expected_sample', 'demo', 'sample', $excluded_columns);
+        $this->assertTableNotSimilar($db, 'demo', 'expected_sample', 'demo', 'sample', $excluded_columns);
         $excluded_columns[] = 'text';
-        $this->assertTableSimilar($db, 'demo', 'expected_sample', 'demo', 'sample', 'id', $excluded_columns);
+        $this->assertTableSimilar($db, 'demo', 'expected_sample', 'demo', 'sample', $excluded_columns);
     }
 
 }

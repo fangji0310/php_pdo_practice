@@ -1,7 +1,7 @@
 <?php
 require_once dirname(__FILE__) . '/BaseTestCase.php';
-require_once dirname(__FILE__) . '/../CreateSQL.php';
-require_once dirname(__FILE__) . '/../db/DB.php';
+require_once dirname(__FILE__) . '/../src/CreateSQL.php';
+require_once dirname(__FILE__) . '/../src/db/DB.php';
 
 class CreateSQLTest extends BaseTestCase {
     /**
