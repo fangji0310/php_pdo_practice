@@ -70,15 +70,21 @@ class DB {
         $sql = "select column_name, column_key from information_schema.columns where table_schema= :database_name and table_name = :table_name";
         $bind=['database_name'=>$database_name, 'table_name'=>$table_name];
         $column_list = [];
-        $primary_key_list = [];
         foreach($this->fetch_generator($sql, $bind) as $row) {
             $column_name = $row['column_name'];
             $column_list[] = $column_name;
-            if ($row['column_key'] === 'PRI') {
-                $primary_key_list[] = $column_name;
-            }
         }
-        return [$column_list, $primary_key_list];
+        return $column_list;
+    }
+
+    public function get_primary_key_column_list($database_name, $table_name) {
+        $sql = "select column_name from information_schema.key_column_usage where table_schema = :database_name and table_name = :table_name and constraint_name = 'PRIMARY'";
+        $bind=['database_name'=>$database_name, 'table_name'=>$table_name];
+        $primary_key_list = [];
+        foreach($this->fetch_generator($sql, $bind) as $row) {
+            $primary_key_list[] = $row['column_name'];
+        }
+        return $primary_key_list;
     }
 
     /**

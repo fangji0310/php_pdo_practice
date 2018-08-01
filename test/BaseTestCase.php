@@ -16,7 +16,8 @@ class BaseTestCase extends TestCase {
     }
 
     public function assertTableSimilar(DB $connection, $expected_database_name, $expected_table_name, $actual_database_name, $actual_table_name, array $exclude_columns = []) {
-        list($expected_columns, $primary_key_columns) = $connection->get_column_name_list($expected_database_name, $expected_table_name);
+        $expected_columns = $connection->get_column_name_list($expected_database_name, $expected_table_name);
+        $primary_key_columns = $connection->get_primary_key_column_list($expected_database_name, $expected_table_name);
         $diff_columns = array_diff($expected_columns, $exclude_columns);
         $diff_query = $this->get_diff_query($diff_columns, $primary_key_columns, $expected_database_name, $expected_table_name, $actual_database_name, $actual_table_name);
         $actual = $connection->count($diff_query, []);
@@ -27,7 +28,8 @@ class BaseTestCase extends TestCase {
     }
 
     public function assertTableNotSimilar(DB $connection, $expected_database_name, $expected_table_name, $actual_database_name, $actual_table_name, array $exclude_columns = []) {
-        list($expected_columns, $primary_key_columns) = $connection->get_column_name_list($expected_database_name, $expected_table_name);
+        $expected_columns = $connection->get_column_name_list($expected_database_name, $expected_table_name);
+        $primary_key_columns = $connection->get_primary_key_column_list($expected_database_name, $expected_table_name);
         $diff_columns = array_diff($expected_columns, $exclude_columns);
         $diff_query = $this->get_diff_query($diff_columns, $primary_key_columns, $expected_database_name, $expected_table_name, $actual_database_name, $actual_table_name);
         $actual = $connection->count($diff_query, []);
